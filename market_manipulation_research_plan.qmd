@@ -1,0 +1,59 @@
+---
+title: "Unraveling the Mechanisms of Pump-and-Dump Market Manipulation in China: Prevalence, Perpetrators, and Policy Implications"
+abstract:
+    Pump-and-dump market manipulation poses a significant threat to the integrity and efficiency of financial markets. This research proposal aims to investigate the theoretical underpinnings of pump-and-dump manipulation and explore the various mechanisms through which it is carried out, with a specific focus on the Chinese stock market. By combining a comprehensive literature review with rigorous empirical analysis of granular trade-level data, we seek to provide new evidence on the prevalence and perpetrators of pump-and-dump schemes. Leveraging recent innovations in machine learning, we aim to develop an adaptive statistical framework to detect manipulation and shed light on the dynamic strategies employed by manipulators. The findings will inform efforts to enhance regulatory detection and deterrence of this form of market abuse.
+format: pdf
+---
+
+
+## Motivation and Research Questions:
+
+Pump-and-dump manipulation involves creating a false hype to "pump" a stock's price before "dumping" it for a profit, misleading investors and distorting market prices. Despite being illegal, such schemes remain a persistent problem, as evidenced by the recent wave of manipulation cases associated with so-called "meme stocks" fueled by social media hype. 
+
+While policymakers have focused on symptoms of manipulation like high order cancellation rates or suspicious trading patterns around information events (Khomyn & Putniņš, 2021; Kacperczyk & Pagnotta, 2024), direct evidence on the mechanisms and perpetrators of pump-and-dump schemes remains limited, particularly in the context of the Chinese markets. The proposed research aims to fill this gap by investigating the following questions:
+
+1. How prevalent are pump-and-dump schemes in Chinese equity markets, and how does this vary across market segments (e.g., large vs. small caps, mainstream vs. emerging sectors)?
+
+2. Who are the key perpetrators of pump-and-dump manipulation in China? What are the network structures and coordination mechanisms employed by manipulation rings?
+
+3. What specific strategies (e.g., order cancellation patterns, wash trading, information dissemination tactics) do pump-and-dump manipulators utilize in the Chinese market context? How do these strategies evolve dynamically during a manipulation cycle?
+
+4. How effective are China's existing regulatory policies in deterring pump-and-dump manipulation? Can recent innovations in machine learning meaningfully boost market surveillance and detection capabilities?
+
+## Methodology:
+
+To address these questions, we will develop an adaptive machine learning-based framework to detect pump-and-dump activity in granular Chinese trade-level data. Building on techniques pioneered in James et al. (2023) and Kazemian & Shrestha (2023), we will leverage methods such as dynamic time warping and extreme value theory to identify trading sequences that are anomalous relative to normal market making activity. 
+
+The framework will be trained and validated using comprehensive trade-level datasets provided by a leading Chinese investment firm covering a multi-year sample period. By tracking how identified manipulation clusters evolve over time and in response to regulatory shifts, we will shed new light on the dynamic strategies employed by manipulators. Network analysis tools will be utilized to map out clusters of manipulators and study their coordination mechanisms.
+
+To supplement the statistical analysis, we will also conduct interviews with Chinese regulators, exchange surveillance staff, and market participants to gather qualitative insights on the evolving tactics of manipulators and the practical challenges of enforcement.
+
+## Expected Contributions and Policy Implications:
+
+By providing novel empirical evidence on the nature and prevalence of pump-and-dump activity in the Chinese context, this research will significantly expand our understanding of how manipulators exploit market mechanisms and investor behavior. The identification of high-risk sectors, time periods, and trading patterns will allow the targeting of regulatory resources for maximum impact. 
+
+Evaluating the efficacy of China's current anti-manipulation policies will provide valuable guidance for enhancing the regulatory framework. The research will also serve as a proof-of-concept for deploying machine learning tools to strengthen market surveillance and enforcement capabilities. At the same time, we will carefully consider the "algorithmic spoofing" risk highlighted by Kim and Putniņš (2023), whereby manipulators may attempt to leverage the inner workings of detection algorithms to evade them. We aim to develop model diagnostics and safeguards to enhance robustness against such gaming.
+
+More broadly, the research will contribute to the academic literatures on market misconduct, trading network analysis, and the applications of machine learning in a financial regulatory context. Discussions are underway with regulatory agencies in China regarding pathways to translate the findings into implementable surveillance solutions and evidence-based policy guidance.
+
+## References:
+
+Aggarwal, R. K., & Wu, G. (2006). Stock market manipulations. Journal of Business, 79(4), 1915-1953. [Link](https://doi.org/10.1086/503652) 
+
+Allen, F., & Gale, D. (1992). Stock-price manipulation. The Review of Financial Studies, 5(3), 503-529. [Link](https://doi.org/10.1093/rfs/5.3.503)
+
+Comerton-Forde, C., & Putniņš, T. J. (2011). Measuring closing price manipulation. Journal of Financial Intermediation, 20(2), 135-158. [Link](https://doi.org/10.1016/j.jfi.2010.09.001)
+
+Cumming, D., Johan, S., & Li, D. (2011). Exchange trading rules and stock market liquidity. Journal of Financial Economics, 99(3), 651-671. [Link](https://doi.org/10.1016/j.jfineco.2010.10.001)
+
+James, R., Leung, H., & Prokhorov, A. (2023). A machine learning attack on illegal trading. Journal of Banking and Finance, 148, 106735. [Link](https://doi.org/10.1016/j.jbankfin.2022.106735) 
+
+Kacperczyk, M., & Pagnotta, E. S. (2024). Legal Risk and Insider Trading. Journal of Finance, Forthcoming. [Link](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3793730)
+
+Kazemian, H., & Shrestha, S. (2023). Comparisons of machine learning techniques for detecting fraudulent criminal identities. Expert Systems with Applications, 229, 120591. [Link](https://doi.org/10.1016/j.eswa.2023.120591)
+
+Khomyn, M., & Putniņš, T. J. (2021). Algos gone wild: What drives the extreme order cancellation rates in modern markets?. Journal of Banking & Finance, 129, 106170. [Link](https://doi.org/10.1016/j.jbankfin.2021.106170) 
+
+Dhawan, Anirudh and Putnins, Talis J., A New Wolf in Town? Pump-and-Dump Manipulation in Cryptocurrency Markets (November 12, 2021). Review of Finance, Forthcoming, Available at SSRN: https://ssrn.com/abstract=3670714 or http://dx.doi.org/10.2139/ssrn.3670714
+
+Putniņš, T. J. (2012). Market manipulation: A survey. Journal of Economic Surveys, 26(5), 952-967. [Link](https://doi.org/10.1111/j.1467-6419.2011.00692.x)
