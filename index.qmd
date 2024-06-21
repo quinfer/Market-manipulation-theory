@@ -1,0 +1,101 @@
+---
+title: "Understanding Market Manipulation: Theory and Practice"
+subtitle: "A Teach-In Event for the FCA Tech Sprint on Market Abuse Surveillance"
+logo: logo.png
+author: Barry Quinn
+slide-number: c/t
+format: revealjs
+---
+
+## Introduction
+
+- Welcome and introduction of the speaker
+  - Background and expertise in market abuse surveillance
+- Objective of the presentation
+  - Provide a comprehensive understanding of market manipulation
+- Overview of the topics to be covered
+  - Trader activity, types of manipulation, theories, case studies, detection, and prevention
+
+## How Trader Activity Informs Market Prices
+
+- Price discovery process
+  - Collective actions of buyers and sellers
+- Supply and demand dynamics
+  - Interaction between supply and demand drives price movements
+- Role of market participants
+  - Liquidity traders: Trade based on liquidity needs, not price expectations
+  - Market makers: Provide liquidity by quoting bid and ask prices
+  - Speculators (informed traders): Trade based on beliefs about the true value of a security
+
+## Paradox of Markets
+
+- High trading volume despite the logic that traders should refuse to transact with willing counterparties
+- Liquidity traders create incentives for market makers to provide liquidity
+- Market makers hope to recover losses from informed traders through transactions with liquidity traders
+- Trading volumes comprise liquidity traders, market makers, and speculators
+
+## Defining Market Manipulation
+
+- What is market manipulation?
+  - Artificially influencing the price of a security or market for personal gain
+- Types of market manipulation
+  - Trade-based manipulation: Executing trades to create a false impression
+  - Information-based manipulation: Spreading false or misleading information
+- Legal and regulatory framework
+  - Relevant laws and regulations (e.g., Securities Exchange Act of 1934)
+  - Role of regulatory bodies (e.g., FCA, SEC)
+
+## Theories of Market Manipulation
+
+- Microstructure theory
+  - Order-based manipulation: Exploiting the order book
+  - Trade-based manipulation: Wash trading and creating illusions of active trading
+- Information-based manipulation theory
+  - Dissemination of false or misleading information
+  - Pump and dump schemes: Artificially inflating prices before selling
+- Behavioral finance theory
+  - Exploiting investor biases and heuristics
+  - Herd mentality and momentum trading
+
+## Informed Trading and Market Efficiency
+
+- Informed traders trade based on their beliefs about the true value of a security
+- Informed trading can make prices more informative and efficient
+- Market prices aggregate the value estimates of informed traders
+- Informed traders must minimize the price impact of their trades to maximize profits
+- Leverage and margin requirements affect the ability to establish long and short positions
+
+## Case Studies
+
+- Historical examples of market manipulation
+  - Libor scandal: Banks manipulating the London Interbank Offered Rate
+  - Enron scandal: Manipulating financial statements and energy markets
+- Recent cases of market manipulation
+  - GameStop short squeeze: Retail investors driving up the stock price
+  - Cryptocurrency market manipulation: Wash trading and pump and dump schemes
+
+## Detecting and Preventing Market Manipulation
+
+- Importance of market abuse surveillance
+  - Maintaining fair, transparent, and efficient financial markets
+- Techniques for detecting market manipulation
+  - Data analysis and pattern recognition
+  - Monitoring trading activity and market trends
+- Best practices for preventing market manipulation
+  - Robust compliance and risk management frameworks
+  - Education and training for market participants
+
+## Conclusion
+
+- Recap of key points
+  - Definition of market manipulation, key theories, real-world examples, detection, and prevention strategies
+- Importance of understanding and combating market manipulation
+  - Maintaining the integrity and efficiency of financial markets
+- Future challenges and opportunities in market abuse surveillance
+  - Increasing complexity of financial markets and emergence of new technologies
+  - Opportunities for innovation in market abuse surveillance
+
+## Q&A Session
+
+- Open the floor for questions from the audience
+- Provide concise and informative answers based on expertise in the field
