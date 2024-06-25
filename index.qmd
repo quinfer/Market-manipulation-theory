@@ -2,7 +2,7 @@
 title: "Understanding Market Manipulation: Theory and Practice"
 subtitle: "A Teach-In Event for the FCA Tech Sprint on Market Abuse Surveillance"
 logo: logo.png
-footer: "Barry Quinn PhD CStat <br> Senior Lecturer of FinTech & Data Science"
+footer: "Barry Quinn PhD CStat <br> Senior Lecturer of Finance, Technology & Data Science"
 bibliography: refs.bib
 slide-number: c/t
 format:  
