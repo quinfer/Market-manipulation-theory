@@ -1,0 +1,12 @@
+{
+    "https://q-rap.connect.qub.ac.uk/": {
+        "server_url": "https://q-rap.connect.qub.ac.uk/",
+        "filename": "/Users/quinference/Documents/GitHub/Market-manipulation-theory",
+        "app_url": "https://q-rap.connect.qub.ac.uk/content/79975011-3721-4509-a81e-6b7d225f0c80/",
+        "app_id": 89,
+        "app_guid": "79975011-3721-4509-a81e-6b7d225f0c80",
+        "title": "Market-manipulation-theory",
+        "app_mode": "python-streamlit",
+        "app_store_version": 1
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "https://q-rap.connect.qub.ac.uk/": {
+        "server_url": "https://q-rap.connect.qub.ac.uk/",
+        "filename": "/Users/quinference/Documents/GitHub/Market-manipulation-theory/pump-dump-app",
+        "app_url": "https://q-rap.connect.qub.ac.uk/content/91fd8595-eeda-4936-9fa9-5dfe61aacb9a/",
+        "app_id": 92,
+        "app_guid": "91fd8595-eeda-4936-9fa9-5dfe61aacb9a",
+        "title": "pump-dump-app",
+        "app_mode": "python-streamlit",
+        "app_store_version": 1
+    }
+}

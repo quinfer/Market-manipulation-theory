@@ -1,0 +1,12 @@
+{
+    "https://q-rap.connect.qub.ac.uk/": {
+        "server_url": "https://q-rap.connect.qub.ac.uk/",
+        "filename": "/Users/quinference/Documents/GitHub/Market-manipulation-theory/order-imbalance-app",
+        "app_url": "https://q-rap.connect.qub.ac.uk/content/155159cc-df1d-4cd6-ac15-62f54e61afcb/",
+        "app_id": 88,
+        "app_guid": "155159cc-df1d-4cd6-ac15-62f54e61afcb",
+        "title": "order-imbalance-app",
+        "app_mode": "python-streamlit",
+        "app_store_version": 1
+    }
+}

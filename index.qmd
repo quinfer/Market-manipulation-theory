@@ -3,99 +3,750 @@ title: "Understanding Market Manipulation: Theory and Practice"
 subtitle: "A Teach-In Event for the FCA Tech Sprint on Market Abuse Surveillance"
 logo: logo.png
 author: Barry Quinn
+bibliography: refs.bib
 slide-number: c/t
-format: revealjs
+format:  
+   revealjs:
+     scrollable: true
+     aspectratio: "16:9"
+     theme: simple 
+     css: custom.css
 ---
 
-## Introduction
+## Key Takeaways
 
-- Welcome and introduction of the speaker
-  - Background and expertise in market abuse surveillance
-- Objective of the presentation
-  - Provide a comprehensive understanding of market manipulation
-- Overview of the topics to be covered
-  - Trader activity, types of manipulation, theories, case studies, detection, and prevention
+- Understand the basic mechanics of financial markets and how trader activity influences prices
+- Gain insights into the various types of market manipulation and the legal framework surrounding them
+- Explore the theories behind market manipulation, including microstructure, information-based, and behavioural finance theories
+- Learn from real-world case studies, both historical and contemporary, to see market manipulation in action
+- Discover the importance of market abuse surveillance and learn about techniques for detecting and preventing market manipulation
+
+## How Trader Activity Informs Market Prices: 
+
+
+### Econ 101 View
+
+- **Price Discovery Process**
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-blue}
+::: {.fragment .semi-fade-out}
+  - Continuous interaction of buyers and sellers
+:::
+:::
+:::  
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+::: {.fragment .semi-fade-out}
+  - Prices adjust as new information becomes available
+:::
+:::
+:::
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-yellow}
+::: {.fragment .semi-fade-out}
+  - Efficient markets hypothesis: prices reflect all available information
+:::
+:::
+:::
+
+## How Trader Activity Informs Market Prices: 
+
+### Econ 101 View
+
+- **Supply and Demand Dynamics**
+  - Supply: Sellers willing to sell at various price points
+  - Demand: Buyers willing to buy at various price points
+  - Equilibrium price: Where supply meets demand
+
+- **Atomised View of Trader Activity**
+
+![](supply_demand.png){width="50%"}
 
 ## How Trader Activity Informs Market Prices
 
-- Price discovery process
-  - Collective actions of buyers and sellers
-- Supply and demand dynamics
-  - Interaction between supply and demand drives price movements
-- Role of market participants
-  - Liquidity traders: Trade based on liquidity needs, not price expectations
-  - Market makers: Provide liquidity by quoting bid and ask prices
-  - Speculators (informed traders): Trade based on beliefs about the true value of a security
+### The Trading Paradox
 
-## Paradox of Markets
+![](paradox_2traders.png){width="60%"}
 
-- High trading volume despite the logic that traders should refuse to transact with willing counterparties
-- Liquidity traders create incentives for market makers to provide liquidity
-- Market makers hope to recover losses from informed traders through transactions with liquidity traders
-- Trading volumes comprise liquidity traders, market makers, and speculators
+:::{.incremental}
+- High trading volume seems paradoxical
+  - Rational traders should be skeptical of willing counterparties
+  - "Why is the other party willing to trade with me?"
+- Yet, we observe high turnover in financial markets
+- This paradox challenges our understanding of price formation
+:::
+
+## UK Market Daily Trading Volume Statistics {.smaller}
+
+### London Stock Exchange (LSE)
+- Average daily trading volume (2020): 1.5 billion shares
+- Average daily trading value (2020): £5.2 billion (USD $7.2 billion)
+
+:::{.smaller-text}
+Source: London Stock Exchange Group, "Annual Report 2020"
+:::
+
+### FTSE 100 Index
+- Average daily trading volume (2020): 1.1 billion shares
+
+:::{.smaller-text}
+Source: London Stock Exchange Group, "FTSE 100 Index Factsheet"
+:::
+
+### Foreign Exchange (Forex)
+- London's share of global forex trading (April 2019): 43%
+- Average daily turnover in UK forex market (April 2019): $2.7 trillion
+
+:::{.smaller-text}
+Source: Bank for International Settlements (BIS), "Triennial Central Bank Survey of Foreign Exchange and Over-the-counter (OTC) Derivatives Markets in 2019"
+:::
+
+## Resolution: Three Key Market Participants
+
+::: {.columns}
+
+::: {.column}
+![](market_participants.png){align="center"}
+:::
+::: {.column .smaller-text .incremental}
+1. **Liquidity Traders**
+   - Trade for non-information reasons (e.g., cash needs, rebalancing)
+   - Willing to pay transaction costs to meet trading needs
+
+2. **Market Makers**
+   - Provide liquidity by always being willing to buy or sell
+   - Profit from the bid-ask spread
+   - Lose to informed traders, but recover losses from liquidity traders
+
+3. **Speculators (Informed Traders)**
+   - Trade based on information or analysis
+   - Profit from trading against less informed participants
+
+:::
+:::
+
+
+## The Three-Legged Stool of Market Function
+
+:::{.incremental}
+- Each participant type is crucial, like legs of a stool:
+  - Without market makers: No consistent counterparty
+  - Without liquidity traders: Market makers would exit
+  - Without speculators: Prices may not reflect information
+
+- This interaction resolves the trading paradox
+  - Liquidity traders create initial demand for trading
+  - Market makers provide necessary liquidity
+  - Speculators ensure prices reflect available information
+:::
+
+## Price Formation Process
+
+:::{.incremental}
+1. Liquidity traders initiate trades based on non-information needs
+2. Market makers set bid-ask spreads to balance risks
+3. Speculators trade when they perceive mispricing
+4. Interaction of all three groups leads to price discovery
+5. Prices continuously adjust as new information becomes available
+:::
+
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+::: {.fragment .semi-fade-out}
+- Result: Prices reflect a balance of information and liquidity needs
+:::
+:::
+:::
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+::: {.fragment .semi-fade-out}
+- Trading volume is driven by the interaction of all three participant types
+:::
+:::
+:::
+
+## Implications for Market Efficiency
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-green}
+::: {.fragment .semi-fade-out}
+- Econ 101 breaks down and Traders' actions become strategic and affect how prices are formed
+- Order Imbalance Simulation [link](https://q-rap.connect.qub.ac.uk/order-imbalance/)
+:::
+:::
+:::
+
+
+:::{.incremental}
+- Price efficiency depends on the presence and activity of all three groups
+- Market structure influences how quickly and accurately prices adjust
+- The Efficient Market Hypothesis relies on this delicate balance
+- Understanding this process is crucial for:
+  - Designing robust market mechanisms
+  - Detecting and preventing market manipulation
+  - Ensuring fair and efficient price formation
+:::
+
+## How Trader Activity Informs Market Prices: 
+
+### A Model
+ 
+- @glosten1985bid model was designed to study the impact of insider trading on market pricing and liquidity
+- **Key insights:**
+  - Presence of informed traders (insiders) affects bid-ask spreads
+  - Market makers widen spreads to compensate for adverse selection risk
+  - Insider activity can move prices to the bid or ask
+
+## Glosten-Milgrom Model Simulation
+
+- Demonstrates the impact of informed trading on prices and spreads
+- User inputs:
+  - Number of traders
+  - Number of insiders
+  - Number of trading rounds
+
+- App logic:
+  - Generates insider orders (biased) and noise orders
+  - Calculates bid-ask spread based on insider proportion  
+  - Determines price based on order imbalance
+  - Outputs price series and bid-ask spread series
+
+- Access the web app: [link](https://q-rap.connect.qub.ac.uk/Glosten-Milgrom/)
 
 ## Defining Market Manipulation
 
-- What is market manipulation?
-  - Artificially influencing the price of a security or market for personal gain
-- Types of market manipulation
-  - Trade-based manipulation: Executing trades to create a false impression
-  - Information-based manipulation: Spreading false or misleading information
-- Legal and regulatory framework
-  - Relevant laws and regulations (e.g., Securities Exchange Act of 1934)
-  - Role of regulatory bodies (e.g., FCA, SEC)
+:::{.incremental}
+- **What is Market Manipulation?**
+  - Intentional conduct designed to deceive investors
+  - Creating false or misleading appearance of trading activity
+  - Artificially influencing market price or trading volume
 
-## Theories of Market Manipulation
+- **Types of Manipulation**
+  - Trade-based: Wash trading, spoofing, layering
+  - Information-based: False rumors, misleading reports
 
-- Microstructure theory
-  - Order-based manipulation: Exploiting the order book
-  - Trade-based manipulation: Wash trading and creating illusions of active trading
-- Information-based manipulation theory
-  - Dissemination of false or misleading information
-  - Pump and dump schemes: Artificially inflating prices before selling
-- Behavioral finance theory
-  - Exploiting investor biases and heuristics
+- **Legal Framework**
+  - Securities Exchange Act of 1934 (US)
+  - Market Abuse Regulation (EU)
+  - Financial Services and Markets Act 2000 (UK)
+  - Regulatory bodies: SEC, FCA, ESMA
+:::
+
+:::{.notes}
+
+### Trade-based manipulation
+
+- Definition: Using trading activities to manipulate prices or create false impressions
+Examples:
+
+ - a. Wash trading: Simultaneously buying and selling the same security
+ - b. Spoofing: Placing orders with intent to cancel before execution
+ - c. Layering: Placing multiple orders at different prices to create false impression of supply/demand
+ - d. Pump and dump: Artificially inflating price before selling at a profit
+
+
+### Information-based manipulation
+
+- Definition: Using false or misleading information to influence security prices
+Examples:
+ - a. Spreading false rumors or misinformation
+ - b. Distorting company financial reports
+ - c. Insider trading: Using non-public material information
+ - d. Front-running: Trading ahead of known future transactions
+
+### Legal and regulatory framework
+
+- Relevant laws and regulations
+
+- Securities Exchange Act of 1934 (US)
+- a. Section 9(a): Prohibits specific manipulative practices
+- b. Section 10(b) and Rule 10b-5: General anti-fraud provisions
+- Market Abuse Regulation (EU)
+- Financial Services and Markets Act 2000 (UK)
+
+
+### Role of regulatory bodies
+
+- Securities and Exchange Commission (SEC) in the US
+ - a. Investigates potential market manipulation
+ - b. Enforces securities laws and regulations
+ - c. Issues guidance and rules to prevent manipulation
+- Financial Conduct Authority (FCA) in the UK
+- European Securities and Markets Authority (ESMA) in the EU
+- Functions:
+- a. Market surveillance
+- b. Enforcement actions
+- c. Regulatory policy development
+- d. Investor education and protection
+
+
+### Key Points:
+
+- Market manipulation takes various forms but always involves intentional deception
+- Both trading activities and information dissemination can be used for manipulation
+- Robust legal and regulatory frameworks are necessary to combat manipulation
+- Regulatory bodies play a crucial role in detecting, preventing, and punishing market manipulation
+:::
+
+## Theories of Market Manipulation{.smaller}
+
+:::{.incremental}
+- **Microstructure Theory**
+  - Order-based: Exploiting order book dynamics
+  - Trade-based: Leveraging price impact of trades
+  - Key models: [@kyle1985continuous;@glosten1985bid;@allen1992stock,@meulbroek1992empirical]
+
+- **Information-based Theory**
+  - False information dissemination
+  - Pump and dump schemes
+  - Models: [@benabou1992using;@van2003informed]
+
+- **Behavioral Finance Theory**
+  - Exploiting cognitive biases: Prospect theory, overconfidence
   - Herd mentality and momentum trading
+  - Insights from [@shleifer2000inefficient;@barberis2003survey]
 
-## Informed Trading and Market Efficiency
+:::{.notes}
+A. Microstructure theory
+   1. Order-based manipulation
+      - Definition: Manipulating market through strategic placement of orders
+      - Key concepts:
+         a. Limit order book dynamics
+         b. Order flow imbalances
+      - Examples:
+         a. Spoofing: Placing large orders with intent to cancel
+         b. Layering: Creating false impressions of supply/demand
+      - Theoretical insights:
+         a. Kyle (1985) model: Strategic informed trading
+         b. Implications for market depth and liquidity
 
-- Informed traders trade based on their beliefs about the true value of a security
-- Informed trading can make prices more informative and efficient
-- Market prices aggregate the value estimates of informed traders
-- Informed traders must minimize the price impact of their trades to maximize profits
-- Leverage and margin requirements affect the ability to establish long and short positions
+   2. Trade-based manipulation
+      - Definition: Manipulating prices through actual transactions
+      - Key concepts:
+         a. Price impact of trades
+         b. Market liquidity and depth
+      - Examples:
+         a. Wash trading: Simultaneous buying and selling
+         b. Corners and squeezes: Controlling asset supply
+      - Theoretical insights:
+         a. Allen and Gale (1992): Profitability of trade-based manipulation
+         b. Jarrow (1992): Conditions for successful manipulation
 
-## Case Studies
+B. Information-based manipulation theory
+   1. Dissemination of false or misleading information
+      - Definition: Manipulating prices through strategic information release
+      - Key concepts:
+         a. Information asymmetry
+         b. Market efficiency
+      - Examples:
+         a. False rumors
+         b. Misleading financial reports
+      - Theoretical insights:
+         a. Benabou and Laroque (1992): Credibility and manipulation
+         b. Van Bommel (2003): Imprecise rumors and manipulation
 
-- Historical examples of market manipulation
-  - Libor scandal: Banks manipulating the London Interbank Offered Rate
-  - Enron scandal: Manipulating financial statements and energy markets
-- Recent cases of market manipulation
-  - GameStop short squeeze: Retail investors driving up the stock price
-  - Cryptocurrency market manipulation: Wash trading and pump and dump schemes
+   2. Pump and dump schemes
+      - Definition: Artificially inflating prices before selling at a profit
+      - Key concepts:
+         a. Information cascades
+         b. Momentum trading
+      - Examples:
+         a. Penny stock promotions
+         b. Cryptocurrency pump schemes
+      - Theoretical insights:
+         a. Aggarwal and Wu (2006): Role of information seekers in manipulation
+         b. Mei et al. (2004): Strategic trading and behavioral biases
+
+C. Behavioral finance theory
+   1. Exploiting investor biases and heuristics
+      - Definition: Manipulating markets by taking advantage of cognitive biases
+      - Key concepts:
+         a. Prospect theory
+         b. Overconfidence bias
+      - Examples:
+         a. Framing effects in financial news
+         b. Exploiting loss aversion
+      - Theoretical insights:
+         a. Shleifer (2000): Limits of arbitrage
+         b. Barberis and Thaler (2003): Behavioral biases in financial markets
+
+   2. Herd mentality and momentum trading
+      - Definition: Manipulating markets by triggering collective behavior
+      - Key concepts:
+         a. Social proof
+         b. Fear of missing out (FOMO)
+      - Examples:
+         a. Creating artificial trends
+         b. Exploiting technical analysis patterns
+      - Theoretical insights:
+         a. Bikhchandani et al. (1992): Information cascades
+         b. Hong and Stein (1999): Underreaction and momentum
+
+Key Points:
+- Market manipulation theories span various disciplines: finance, economics, and psychology
+- Microstructure theory focuses on how market design and trading mechanisms can be exploited
+- Information-based theories highlight the role of strategic information dissemination
+- Behavioral finance theories explain how psychological factors can be leveraged for manipulation
+- Understanding these theories is crucial for designing robust benchmarks and detection mechanisms
+
+This outline provides a comprehensive overview of the main theories of market manipulation, covering microstructure, information-based, and behavioral approaches. It sets the stage for discussing how these theories inform the design of robust benchmarks and manipulation detection strategies.
+:::
+
+## Case Studies {.smaller}
+
+:::{.incremental}
+- **Libor Scandal**
+  - Banks submitting false rates for profit
+  - Resulted in billions in fines, criminal charges
+  - Exposed vulnerability of self-reported benchmarks
+
+- **Enron Scandal**
+  - Accounting fraud and energy market manipulation
+  - Led to company bankruptcy, executive prosecutions
+  - Highlighted importance of corporate governance
+
+- **GameStop Short Squeeze (2021)**
+  - Coordinated retail buying via social media
+  - Caused significant losses for short-selling hedge funds
+  - Raised questions about market fairness and regulation
+
+- **Cryptocurrency Manipulation**
+  - Pump and dump schemes, wash trading common
+  - Bitfinex/Tether controversy: alleged Bitcoin price manipulation
+  - Challenges of regulating decentralized markets
+  - Pump and Dump Simulation [link](https://q-rap.connect.qub.ac.uk/pump-dump/)
+:::
+
+::: {.notes}
+
+A. Historical examples of market manipulation
+
+   1. Libor scandal
+      - Background:
+         a. London Interbank Offered Rate (Libor): benchmark interest rate
+         b. Used for trillions of dollars in financial contracts worldwide
+      - Manipulation scheme:
+         a. Banks submitting false rates to benefit their trading positions
+         b. Collusion among traders from different banks
+      - Discovery and consequences:
+         a. Uncovered in 2012
+         b. Billions in fines for major banks (e.g., Barclays, UBS, RBS)
+         c. Criminal charges for some individuals
+      - Lessons learned:
+         a. Vulnerability of self-reported benchmarks
+         b. Importance of oversight and verification in benchmark setting
+
+   2. Enron scandal
+      - Background:
+         a. Enron: Major energy company in the late 1990s/early 2000s
+         b. Known for innovative trading and risk management
+      - Manipulation schemes:
+         a. Accounting fraud: hiding losses and inflating profits
+         b. Market manipulation in California energy markets
+      - Discovery and consequences:
+         a. Bankruptcy in 2001
+         b. Criminal charges for executives
+         c. Collapse of Arthur Andersen accounting firm
+      - Lessons learned:
+         a. Dangers of conflicts of interest
+         b. Importance of corporate governance and financial transparency
+
+B. Recent cases of market manipulation
+
+   1. GameStop short squeeze (2021)
+      - Background:
+         a. GameStop: struggling brick-and-mortar video game retailer
+         b. Heavily shorted by hedge funds
+      - Manipulation/event dynamics:
+         a. Coordinated buying by retail investors (via Reddit's WallStreetBets)
+         b. Aimed to trigger a short squeeze
+      - Consequences:
+         a. GameStop stock price surged over 1,500% in two weeks
+         b. Some hedge funds suffered significant losses
+         c. Trading restrictions imposed by some brokers
+      - Lessons learned:
+         a. Power of social media in coordinating retail investors
+         b. Challenges in regulating decentralized manipulation
+         c. Questions about fairness and market access
+
+   2. Cryptocurrency market manipulation
+      - Background:
+         a. Cryptocurrencies: decentralized digital assets
+         b. Often traded on less regulated exchanges
+      - Common manipulation techniques:
+         a. Pump and dump schemes
+         b. Wash trading to inflate volume
+         c. Spoofing and layering
+      - Specific example: Bitfinex and Tether controversy
+         a. Allegations of using Tether to manipulate Bitcoin prices
+         b. DOJ and CFTC investigations
+      - Lessons learned:
+         a. Challenges in regulating decentralized markets
+         b. Importance of transaction transparency
+         c. Need for improved detection methods in high-frequency, high-volatility markets
+
+Key Points:
+- Market manipulation occurs in various forms across different types of markets
+- Both traditional financial markets and newer markets (e.g., cryptocurrencies) are vulnerable
+- Manipulation can have far-reaching consequences beyond immediate price distortions
+- Regulatory responses often lag behind new manipulation techniques
+- Technological advancements and social media have introduced new manipulation risks
+
+This outline provides an overview of significant historical and recent market manipulation cases, highlighting the diverse nature of manipulation schemes and the evolving challenges in preventing and detecting them. These case studies provide concrete examples of how manipulation can occur and its potential impacts, which is crucial context for discussing robust benchmark design.
+:::
+
+## Using the Glosten-Milgrom Model to Understand Market Manipulation
+
+- Information-based manipulation
+  - Manipulator acts as "insider" with false information edge
+  - Creates artificial information asymmetry to mislead traders
+
+- Spoofing and layering
+  - Manipulator places orders to create false demand/supply
+  - Drives price to bid or ask, then reverses position
+
+- Wash trading  
+  - Manipulator trades with self to generate artificial volume
+  - Appears as high "insider" activity, widening spreads
+
+- Collusion and pooling
+  - Manipulators coordinate to act as a large informed trader
+  - Model suggests higher informed trading leads to wider spreads, more price impact
+
+## Limitations
+
+- Glosten-Milgrom model assumptions:
+  - Insiders trade on genuine information
+  - Doesn't fully capture complex manipulation tactics
+
+- Extending the model:  
+  - Explicitly model manipulative strategies
+  - Incorporate cross-market effects
+  - Consider regulatory detection and enforcement
+
+- Empirical testing:
+  - Validate model predictions using real manipulation cases
+  - Assess effectiveness of the model in detecting manipulation
+
 
 ## Detecting and Preventing Market Manipulation
 
-- Importance of market abuse surveillance
-  - Maintaining fair, transparent, and efficient financial markets
-- Techniques for detecting market manipulation
-  - Data analysis and pattern recognition
-  - Monitoring trading activity and market trends
-- Best practices for preventing market manipulation
-  - Robust compliance and risk management frameworks
-  - Education and training for market participants
+:::{.incremental}
+- **Market Abuse Surveillance**
+  - Critical for maintaining market integrity
+  - Required by regulations (MiFID II, Dodd-Frank)
+
+- **Detection Techniques**
+  - Machine learning and AI for anomaly detection
+  - Time series analysis (e.g., ARMA models)
+  - Real-time monitoring of trading activity and news
+
+- **Prevention Best Practices**
+  - Robust compliance frameworks and internal controls
+  - Regular education and training for market participants
+  - Fostering an ethical trading culture
+:::
+
+:::{.notes}
+Certainly. I'll develop material for the next section of your presentation:
+
+Detecting and Preventing Market Manipulation (6 minutes)
+A. Importance of market abuse surveillance
+B. Techniques for detecting market manipulation
+   1. Data analysis and pattern recognition
+   2. Monitoring of trading activity and market trends
+C. Best practices for preventing market manipulation
+   1. Robust compliance and risk management frameworks
+   2. Education and training for market participants
+
+Here's a detailed outline for this section:
+
+Detecting and Preventing Market Manipulation (6 minutes)
+
+A. Importance of market abuse surveillance
+   1. Maintaining market integrity and investor confidence
+   2. Regulatory requirements (e.g., MiFID II in EU, Dodd-Frank in US)
+   3. Reputational risk management for financial institutions
+   4. Deterrence effect on potential manipulators
+
+B. Techniques for detecting market manipulation
+   1. Data analysis and pattern recognition
+      a. Machine learning and artificial intelligence
+         - Anomaly detection algorithms
+         - Predictive modeling of manipulative behavior
+      b. Time series analysis
+         - ARMA models (as discussed in Park & Lee, 2010)
+         - Volatility clustering and regime-switching models
+      c. Network analysis
+         - Identifying coordinated trading patterns
+         - Detecting wash trades and circular trading
+   
+   2. Monitoring of trading activity and market trends
+      a. Real-time surveillance systems
+         - Alerts for unusual price or volume movements
+         - Cross-market surveillance
+      b. Order book analysis
+         - Detecting spoofing and layering
+         - Identifying order imbalances
+      c. News and social media monitoring
+         - Sentiment analysis
+         - Detecting coordinated misinformation campaigns
+
+C. Best practices for preventing market manipulation
+   1. Robust compliance and risk management frameworks
+      a. Clear policies and procedures
+         - Trading restrictions and pre-clearance requirements
+         - Information barriers (Chinese walls)
+      b. Internal controls
+         - Trade surveillance systems
+         - Regular audits and risk assessments
+      c. Whistleblowing mechanisms
+         - Confidential reporting channels
+         - Protection for whistleblowers
+      d. Cooperation with regulators
+         - Timely reporting of suspicious activities
+         - Participation in industry forums and working groups
+
+   2. Education and training for market participants
+      a. Regular training programs
+         - Market abuse regulations
+         - Identifying red flags of manipulation
+      b. Scenario-based learning
+         - Case studies of past manipulation incidents
+         - Simulations of potential manipulation scenarios
+      c. Ethical trading culture
+         - Emphasizing integrity and fair dealing
+         - Clear consequences for violations
+      d. Technology and cybersecurity awareness
+         - Protecting against cyber-enabled manipulation
+         - Understanding new market technologies (e.g., algorithmic trading)
+
+Key Points:
+- Detecting manipulation requires a combination of technological solutions and human expertise
+- Prevention strategies should focus on both deterrence and early detection
+- Collaboration between market participants, regulators, and technology providers is crucial
+- As manipulation techniques evolve, detection and prevention methods must continuously adapt
+- A holistic approach combining surveillance, compliance, and education is most effective
+
+This outline provides a comprehensive overview of the current approaches to detecting and preventing market manipulation. It emphasizes the importance of both technological solutions and human factors in maintaining market integrity. This section sets the stage for discussing how robust benchmark design can complement these efforts in mitigating manipulation risks.
+:::
 
 ## Conclusion
 
-- Recap of key points
-  - Definition of market manipulation, key theories, real-world examples, detection, and prevention strategies
-- Importance of understanding and combating market manipulation
-  - Maintaining the integrity and efficiency of financial markets
-- Future challenges and opportunities in market abuse surveillance
-  - Increasing complexity of financial markets and emergence of new technologies
-  - Opportunities for innovation in market abuse surveillance
+:::{.incremental}
+- Market manipulation disrupts the delicate balance of the three-legged stool
+- Understanding manipulation is crucial for preserving market integrity
+- Multi-faceted approach needed: technology, regulation, education
+- Future challenges:
+  - Emerging technologies (AI, blockchain)
+  - Cross-border and cross-asset manipulation
+  - Decentralised finance and social media influence
+- Robust benchmark design is critical in mitigating manipulation risks and maintaining fair price formation
+:::
 
-## Q&A Session
+::: {.notes}
+A. Recap of key points
+   1. Understanding market dynamics
+      - Price discovery process
+      - Role of different market participants
+   2. Defining market manipulation
+      - Types of manipulation (trade-based, information-based)
+      - Legal and regulatory framework
+   3. Theories of market manipulation
+      - Microstructure theory
+      - Information-based manipulation theory
+      - Behavioral finance theory
+   4. Real-world examples
+      - Historical cases (e.g., Libor, Enron)
+      - Recent incidents (e.g., GameStop, cryptocurrency manipulation)
+   5. Detection and prevention strategies
+      - Data analysis and pattern recognition
+      - Compliance frameworks and education
 
-- Open the floor for questions from the audience
-- Provide concise and informative answers based on expertise in the field
+B. Importance of understanding and combating market manipulation
+   1. Maintaining market integrity
+      - Ensuring fair and efficient markets
+      - Protecting investor confidence
+   2. Economic implications
+      - Efficient allocation of capital
+      - Reducing systemic risks
+   3. Regulatory perspective
+      - Evolving regulations to address new manipulation techniques
+      - Balancing innovation and investor protection
+   4. Technological advancements
+      - Opportunities for improved detection
+      - New challenges in high-frequency and algorithmic trading environments
+
+C. Future challenges and opportunities in market abuse surveillance
+   1. Emerging technologies
+      - Artificial intelligence and machine learning
+      - Blockchain and distributed ledger technology
+   2. Cross-border and cross-asset manipulation
+      - Need for global coordination among regulators
+      - Integrated surveillance across different asset classes
+   3. Decentralized finance (DeFi) and cryptocurrency markets
+      - Regulatory challenges in decentralized systems
+      - Adapting traditional surveillance methods to new market structures
+   4. Social media and retail investor participation
+      - Monitoring and analyzing social sentiment
+      - Addressing coordinated retail trading activities
+   5. Behavioral analysis and predictive modeling
+      - Anticipating manipulation attempts before they occur
+      - Incorporating behavioral finance insights into surveillance systems
+
+Key Takeaways:
+1. Market manipulation remains a significant threat to market integrity and efficiency
+2. Understanding manipulation theories and techniques is crucial for effective prevention and detection
+3. A multi-faceted approach combining technology, regulation, and education is necessary
+4. The fight against manipulation is ongoing and must evolve with changing market structures and technologies
+5. Robust benchmark design plays a critical role in mitigating manipulation risks
+
+This conclusion summarizes the main points of the presentation, emphasizes the importance of addressing market manipulation, and looks ahead to future challenges and opportunities. It provides a holistic view of the topic and reinforces the relevance of robust benchmark design in the broader context of market integrity.
+:::
+
+
+## EXTRAS
+
+### Glosten Milgrom Mathematical Exposition {.smallest-text}
+
+- $V$: The true value of the asset, which can be either low ($V_L$) or high ($V_H$)
+- $P_t$: The market maker's price at time $t$
+- $X_t$: The trade indicator at time $t$ (+1 for a buy, -1 for a sell)
+- $\mu$: The fraction of informed traders in the market
+- $\lambda$: The probability that an informed trader observes $V_H$
+
+The model assumes that:
+
+1. Informed traders buy when $V = V_H$ and sell when $V = V_L$
+2. Uninformed traders buy and sell with equal probability
+
+Given these assumptions, the market maker's pricing rule is:
+
+$P_t = E[V | X_1, X_2, ..., X_{t-1}]$
+
+This means that the market maker sets the price equal to the expected value of the asset conditional on the history of trades.
+
+Using Bayes' rule, we can express the price as:
+
+$P_t = \frac{P(X_1, X_2, ..., X_{t-1} | V = V_H) \cdot P(V = V_H)}{P(X_1, X_2, ..., X_{t-1})}$
+
+The bid-ask spread at time $t$ is given by:
+
+$S_t = P_t^a - P_t^b = \frac{\mu(1 - \lambda)}{\mu(1 - \lambda) + (1 - \mu)/2} (V_H - V_L)$
+
+where $P_t^a$ is the ask price and $P_t^b$ is the bid price.
+
+The key insights from this formalization are:
+
+1. The market maker's price is a function of the trading history, reflecting the information content of past trades
+2. The bid-ask spread is directly proportional to the fraction of informed traders $\mu$ and the asset's value uncertainty $(V_H - V_L)$
+3. As the fraction of informed traders increases, the bid-ask spread widens to compensate for the increased adverse selection risk faced by the market maker
+
+This mathematical formulation provides a rigorous foundation for understanding how informed trading affects market pricing and liquidity in the Glosten-Milgrom model.
+
+## References

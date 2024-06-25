@@ -1,0 +1,28 @@
+.reveal .slides {
+  font-size: 0.8em; /* Adjust this value as needed */
+}
+/* Custom classes for different text sizes */
+.small-text {
+    font-size: 0.8em;
+  }
+  
+  .smaller-text {
+    font-size: 0.7em;
+  }
+  
+  .smallest-text {
+    font-size: 0.6em;
+  }
+  
+  /* Apply to all elements within a slide */
+  .small-text-slide * {
+    font-size: 0.8em;
+  }
+  
+  .smaller-text-slide * {
+    font-size: 0.7em;
+  }
+  
+  .smallest-text-slide * {
+    font-size: 0.6em;
+  }
