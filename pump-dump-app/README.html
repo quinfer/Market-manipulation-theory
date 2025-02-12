@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Market Microstructure Research Team">
+
+<title>Market Microstructure Analysis of Pump and Dump Schemes: A Simulation Approach</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="README_files/libs/clipboard/clipboard.min.js"></script>
+<script src="README_files/libs/quarto-html/quarto.js"></script>
+<script src="README_files/libs/quarto-html/popper.min.js"></script>
+<script src="README_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="README_files/libs/quarto-html/anchor.min.js"></script>
+<link href="README_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="README_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="README_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="README_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="README_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract"><span class="header-section-number">1</span> Abstract</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">2</span> Introduction</a></li>
+  <li><a href="#theoretical-framework" id="toc-theoretical-framework" class="nav-link" data-scroll-target="#theoretical-framework"><span class="header-section-number">3</span> Theoretical Framework</a>
+  <ul class="collapse">
+  <li><a href="#market-participants" id="toc-market-participants" class="nav-link" data-scroll-target="#market-participants"><span class="header-section-number">3.1</span> Market Participants</a></li>
+  <li><a href="#price-formation-process" id="toc-price-formation-process" class="nav-link" data-scroll-target="#price-formation-process"><span class="header-section-number">3.2</span> Price Formation Process</a></li>
+  <li><a href="#strategic-trading-dynamics" id="toc-strategic-trading-dynamics" class="nav-link" data-scroll-target="#strategic-trading-dynamics"><span class="header-section-number">3.3</span> Strategic Trading Dynamics</a></li>
+  </ul></li>
+  <li><a href="#model-implementation" id="toc-model-implementation" class="nav-link" data-scroll-target="#model-implementation"><span class="header-section-number">4</span> Model Implementation</a>
+  <ul class="collapse">
+  <li><a href="#market-microstructure-features" id="toc-market-microstructure-features" class="nav-link" data-scroll-target="#market-microstructure-features"><span class="header-section-number">4.1</span> Market Microstructure Features</a></li>
+  <li><a href="#behavioral-elements" id="toc-behavioral-elements" class="nav-link" data-scroll-target="#behavioral-elements"><span class="header-section-number">4.2</span> Behavioral Elements</a></li>
+  </ul></li>
+  <li><a href="#results-and-implications" id="toc-results-and-implications" class="nav-link" data-scroll-target="#results-and-implications"><span class="header-section-number">5</span> Results and Implications</a>
+  <ul class="collapse">
+  <li><a href="#market-quality-metrics" id="toc-market-quality-metrics" class="nav-link" data-scroll-target="#market-quality-metrics"><span class="header-section-number">5.1</span> Market Quality Metrics</a></li>
+  <li><a href="#policy-implications" id="toc-policy-implications" class="nav-link" data-scroll-target="#policy-implications"><span class="header-section-number">5.2</span> Policy Implications</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">7</span> References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Market Microstructure Analysis of Pump and Dump Schemes: A Simulation Approach</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Market Microstructure Research Team </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="abstract" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="abstract"><span class="header-section-number">1</span> Abstract</h2>
+<p>This paper presents a market microstructure simulation of pump and dump manipulation schemes, incorporating strategic informed trading, noise trader behavior, and dynamic liquidity conditions. Our model extends classical market microstructure frameworks to examine how manipulative trading interacts with various market participants and price formation processes. The simulation demonstrates how information asymmetry, strategic trading, and behavioral biases contribute to the effectiveness of market manipulation strategies.</p>
+</section>
+<section id="introduction" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="introduction"><span class="header-section-number">2</span> Introduction</h2>
+<p>Market manipulation remains a persistent concern in financial markets, with pump and dump schemes representing a particularly harmful form of manipulative behavior <span class="citation" data-cites="Allen2006">(<a href="#ref-Allen2006" role="doc-biblioref">Allen and Gale 2006</a>)</span>. While traditional market microstructure models typically focus on informed trading in efficient markets <span class="citation" data-cites="Kyle1985">(<a href="#ref-Kyle1985" role="doc-biblioref">Kyle 1985</a>)</span>, less attention has been paid to how manipulative trading strategies interact with market microstructure mechanisms <span class="citation" data-cites="Aggarwal2005">(<a href="#ref-Aggarwal2005" role="doc-biblioref"><strong>Aggarwal2005?</strong></a>)</span>.</p>
+</section>
+<section id="theoretical-framework" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="theoretical-framework"><span class="header-section-number">3</span> Theoretical Framework</h2>
+<section id="market-participants" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="market-participants"><span class="header-section-number">3.1</span> Market Participants</h3>
+<p>Our model incorporates three distinct types of traders:</p>
+<ol type="1">
+<li><strong>Strategic Informed Traders (Manipulators)</strong>
+<ul>
+<li>Possess superior information about their trading intentions</li>
+<li>Execute dynamic trading strategies <span class="citation" data-cites="Back1992">(<a href="#ref-Back1992" role="doc-biblioref">Back 1992</a>)</span></li>
+<li>Optimize price impact and execution timing</li>
+</ul></li>
+<li><strong>Regular Informed Traders</strong>
+<ul>
+<li>Trade based on fundamental information</li>
+<li>Partially detect manipulation <span class="citation" data-cites="Jarrow1992">(<a href="#ref-Jarrow1992" role="doc-biblioref">Jarrow 1992</a>)</span></li>
+<li>Exhibit rational updating of beliefs</li>
+</ul></li>
+<li><strong>Noise Traders</strong>
+<ul>
+<li>Display behavioral biases <span class="citation" data-cites="DeLong1990">(<a href="#ref-DeLong1990" role="doc-biblioref">De Long et al. 1990</a>)</span></li>
+<li>Follow momentum signals</li>
+<li>Demonstrate herding behavior <span class="citation" data-cites="Bikhchandani1992">(<a href="#ref-Bikhchandani1992" role="doc-biblioref">Bikhchandani, Hirshleifer, and Welch 1992</a>)</span></li>
+</ul></li>
+</ol>
+</section>
+<section id="price-formation-process" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="price-formation-process"><span class="header-section-number">3.2</span> Price Formation Process</h3>
+<p>The price formation process follows a modified version of Kyle’s framework <span class="citation" data-cites="Kyle1985">(<a href="#ref-Kyle1985" role="doc-biblioref">Kyle 1985</a>)</span>:</p>
+<p><span class="math display">\[P_t = P_{t-1} + \lambda(w_m V_m + w_i V_i + w_n V_n) + \sigma_t\]</span></p>
+<p>Where: - <span class="math inline">\(P_t\)</span> is the price at time t - <span class="math inline">\(\lambda\)</span> is the price impact parameter - <span class="math inline">\(w_k\)</span> are trader-type weights - <span class="math inline">\(V_k\)</span> are trading volumes by trader type - <span class="math inline">\(\sigma_t\)</span> is time-varying volatility</p>
+</section>
+<section id="strategic-trading-dynamics" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="strategic-trading-dynamics"><span class="header-section-number">3.3</span> Strategic Trading Dynamics</h3>
+<p>Manipulators optimize their trading strategy considering:</p>
+<ol type="1">
+<li><strong>Information Advantage</strong> <span class="math display">\[A_t = \alpha e^{-\beta(T-t)}(1 + \gamma I_t)\]</span> where:</li>
+</ol>
+<ul>
+<li><span class="math inline">\(A_t\)</span> is the strategic advantage</li>
+<li><span class="math inline">\(T-t\)</span> is time remaining</li>
+<li><span class="math inline">\(I_t\)</span> is market impact</li>
+<li><span class="math inline">\(\alpha, \beta, \gamma\)</span> are parameters</li>
+</ul>
+<ol start="2" type="1">
+<li><strong>Volume Strategy</strong> <span class="math display">\[
+V_m(t) = \begin{cases}
+V_p(1 + s_t)\phi(t) &amp; \text{during pump} \\
+V_d(1 + u_t)\psi(t) &amp; \text{during dump}
+\end{cases}
+\]</span></li>
+</ol>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(s_t\)</span> is the stealth factor</li>
+<li><span class="math inline">\(u_t\)</span> is the urgency factor</li>
+<li><span class="math inline">\(\phi(t), \psi(t)\)</span> are phase-specific adjustments</li>
+</ul>
+</section>
+</section>
+<section id="model-implementation" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="model-implementation"><span class="header-section-number">4</span> Model Implementation</h2>
+<section id="market-microstructure-features" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="market-microstructure-features"><span class="header-section-number">4.1</span> Market Microstructure Features</h3>
+<p>The simulation incorporates key market microstructure elements:</p>
+<ol type="1">
+<li><strong>Bid-Ask Spread Dynamics</strong>
+<ul>
+<li>Spreads widen with volatility</li>
+<li>Liquidity effects on spread formation <span class="citation" data-cites="Amihud2002">(<a href="#ref-Amihud2002" role="doc-biblioref">Amihud 2002</a>)</span></li>
+<li>Strategic spread positioning</li>
+</ul></li>
+<li><strong>Volume-Volatility Relationship</strong>
+<ul>
+<li>GARCH-type volatility updating</li>
+<li>Volume-volatility feedback effects <span class="citation" data-cites="Karpoff1987">(<a href="#ref-Karpoff1987" role="doc-biblioref">Karpoff 1987</a>)</span></li>
+<li>Strategic volume management</li>
+</ul></li>
+<li><strong>Price Impact Functions</strong>
+<ul>
+<li>Square-root price impact model <span class="citation" data-cites="Almgren2005">(<a href="#ref-Almgren2005" role="doc-biblioref">Almgren et al. 2005</a>)</span></li>
+<li>Temporary vs.&nbsp;permanent impact</li>
+<li>Asymmetric impact during different phases</li>
+</ul></li>
+</ol>
+</section>
+<section id="behavioral-elements" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="behavioral-elements"><span class="header-section-number">4.2</span> Behavioral Elements</h3>
+<p>The model captures important behavioral aspects:</p>
+<ol type="1">
+<li><strong>Momentum Effects</strong>
+<ul>
+<li>Trend-following behavior</li>
+<li>Feedback trading</li>
+<li>Herding dynamics <span class="citation" data-cites="Hirshleifer2009">(<a href="#ref-Hirshleifer2009" role="doc-biblioref">Hirshleifer and Teoh 2009</a>)</span></li>
+</ul></li>
+<li><strong>Information Diffusion</strong>
+<ul>
+<li>Gradual information revelation</li>
+<li>Strategic information management</li>
+<li>Learning by market participants</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="results-and-implications" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="results-and-implications"><span class="header-section-number">5</span> Results and Implications</h2>
+<section id="market-quality-metrics" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="market-quality-metrics"><span class="header-section-number">5.1</span> Market Quality Metrics</h3>
+<p>The simulation generates several key market quality indicators:</p>
+<ol type="1">
+<li><strong>Price Efficiency</strong>
+<ul>
+<li>Deviation from fundamental value</li>
+<li>Speed of price adjustment</li>
+<li>Information incorporation rate</li>
+</ul></li>
+<li><strong>Liquidity Measures</strong>
+<ul>
+<li>Bid-ask spread dynamics</li>
+<li>Market depth variations</li>
+<li>Resilience metrics</li>
+</ul></li>
+<li><strong>Trading Activity</strong>
+<ul>
+<li>Volume patterns</li>
+<li>Trade size distribution</li>
+<li>Participant type analysis</li>
+</ul></li>
+</ol>
+</section>
+<section id="policy-implications" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="policy-implications"><span class="header-section-number">5.2</span> Policy Implications</h3>
+<p>Our findings have several regulatory implications:</p>
+<ol type="1">
+<li><strong>Detection Mechanisms</strong>
+<ul>
+<li>Pattern recognition opportunities</li>
+<li>Early warning indicators</li>
+<li>Surveillance priorities</li>
+</ul></li>
+<li><strong>Market Design</strong>
+<ul>
+<li>Circuit breaker effectiveness</li>
+<li>Trading halt considerations</li>
+<li>Disclosure requirements</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">6</span> Conclusion</h2>
+<p>This simulation framework provides insights into the microstructure mechanics of pump and dump schemes, highlighting the complex interactions between different trader types and market mechanisms. The results suggest that market manipulation effectiveness depends critically on the interplay between information advantages, strategic trading, and behavioral responses of other market participants.</p>
+</section>
+<section id="references" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="references"><span class="header-section-number">7</span> References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Allen2006" class="csl-entry" role="listitem">
+Allen, Franklin, and Douglas Gale. 2006. <span>“Stock Market Manipulation.”</span> <em>Review of Financial Studies</em> 19 (1): 1–33.
+</div>
+<div id="ref-Almgren2005" class="csl-entry" role="listitem">
+Almgren, Robert, Chee Thum, Emmanuel Hauptmann, and Hong Li. 2005. <span>“Direct Estimation of Equity Market Impact.”</span> <em>Risk</em> 18 (7): 58–62.
+</div>
+<div id="ref-Amihud2002" class="csl-entry" role="listitem">
+Amihud, Yakov. 2002. <span>“Illiquidity and Stock Returns: Cross-Section and Time-Series Effects.”</span> <em>Journal of Financial Markets</em> 5 (1): 31–56.
+</div>
+<div id="ref-Back1992" class="csl-entry" role="listitem">
+Back, Kerry. 1992. <span>“Insider Trading in Continuous Time.”</span> <em>Review of Financial Studies</em> 5 (3): 387–409.
+</div>
+<div id="ref-Bikhchandani1992" class="csl-entry" role="listitem">
+Bikhchandani, Sushil, David Hirshleifer, and Ivo Welch. 1992. <span>“A Theory of Fads, Fashion, Custom, and Cultural Change as Informational Cascades.”</span> <em>Journal of Political Economy</em> 100 (5): 992–1026.
+</div>
+<div id="ref-DeLong1990" class="csl-entry" role="listitem">
+De Long, J Bradford, Andrei Shleifer, Lawrence H Summers, and Robert J Waldmann. 1990. <span>“Noise Trader Risk in Financial Markets.”</span> <em>Journal of Political Economy</em> 98 (4): 703–38.
+</div>
+<div id="ref-Hirshleifer2009" class="csl-entry" role="listitem">
+Hirshleifer, David, and Siew Hong Teoh. 2009. <span>“Thought and Behavior Contagion in Capital Markets.”</span> <em>Handbook of Financial Markets: Dynamics and Evolution</em>, 1–56.
+</div>
+<div id="ref-Jarrow1992" class="csl-entry" role="listitem">
+Jarrow, Robert A. 1992. <span>“Market Manipulation, Bubbles, Corners, and Short Squeezes.”</span> <em>Journal of Financial and Quantitative Analysis</em> 27 (3): 311–36.
+</div>
+<div id="ref-Karpoff1987" class="csl-entry" role="listitem">
+Karpoff, Jonathan M. 1987. <span>“The Relation Between Price Changes and Trading Volume: A Survey.”</span> <em>Journal of Financial and Quantitative Analysis</em> 22 (1): 109–26.
+</div>
+<div id="ref-Kyle1985" class="csl-entry" role="listitem">
+Kyle, Albert S. 1985. <span>“Continuous Auctions and Insider Trading.”</span> <em>Econometrica</em> 53 (6): 1315–35.
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
