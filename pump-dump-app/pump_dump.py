@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import math
 
 def simulate_pump_and_dump(num_traders, num_manipulators, pump_duration, dump_duration, 
                          pump_strength, dump_strength, noise_trader_ratio=0.7,
@@ -11,9 +12,11 @@ def simulate_pump_and_dump(num_traders, num_manipulators, pump_duration, dump_du
     manipulator_activity = []
     volumes = []
     spreads = []
-    volatility = 0.01 * (1 + noise_trader_ratio * 2)  # Double the noise trader impact on base volatility
-    base_spread = 0.02
+    volatilities = [0.01 * (1 + noise_trader_ratio * 2)]  # Initial volatility
+    regimes = [0]  # 0: normal, 1: high volatility, 2: crash
+    market_stress = 0
     momentum = 0
+    order_imbalance = 0
     
     # Calculate trader composition
     num_noise_traders = int((num_traders - num_manipulators) * noise_trader_ratio)
@@ -23,160 +26,375 @@ def simulate_pump_and_dump(num_traders, num_manipulators, pump_duration, dump_du
     if show_details:
         st.markdown(f"""
         ### Simulation Details
-        Running simulation with:
+        Running enhanced simulation with:
         - {num_noise_traders} noise traders ({noise_trader_ratio*100:.1f}%)
         - {num_informed_traders} informed traders ({(1-noise_trader_ratio)*100:.1f}%)
         - {num_manipulators} manipulators
+        - GARCH volatility model
+        - Regime-switching dynamics
+        - Jump diffusion process
+        - Fat-tailed return distributions
         """)
     
-    def calculate_price_impact(volume, current_price):
-        # Square root price impact model
+    # GARCH parameters
+    garch_omega = 0.000001
+    garch_alpha = 0.1
+    garch_beta = 0.85
+    
+    # Regime transition matrices - probability of moving from current regime to next
+    regime_transition_matrices = {
+        'pump': [
+            [0.95, 0.04, 0.01],  # Normal -> Normal, High Vol, Crash
+            [0.15, 0.80, 0.05],  # High Vol -> Normal, High Vol, Crash
+            [0.30, 0.50, 0.20]   # Crash -> Normal, High Vol, Crash
+        ],
+        'dump': [
+            [0.80, 0.15, 0.05],  # More likely to transition in dump phase
+            [0.10, 0.70, 0.20],
+            [0.15, 0.35, 0.50]
+        ]
+    }
+    
+    # Helper functions
+    def t_dist_random(mean, scale, df):
+        """Generate Student's t-distributed random variable"""
+        # Standard t-distribution
+        t = np.random.standard_t(df)
+        # Scale and shift
+        return mean + scale * t
+    
+    def poisson_jump(intensity, jump_size_mean, jump_size_std):
+        """Generate price jumps based on Poisson process"""
+        # Determine if jump occurs
+        jump_occurs = np.random.random() < intensity
+        if jump_occurs:
+            # Generate jump size
+            return np.random.normal(jump_size_mean, jump_size_std)
+        return 0
+    
+    def update_garch_volatility(prev_volatility, prev_return, omega, alpha, beta):
+        """Update volatility using GARCH(1,1) model with numerical safety"""
+        # Clip previous return to prevent extreme values
+        safe_return = np.clip(prev_return, -0.25, 0.25)
+        safe_volatility = np.clip(prev_volatility, 0.001, 0.5)
+        
+        # Calculate GARCH value with bounds
+        garch_value = omega + alpha * np.power(safe_return, 2) + beta * np.power(safe_volatility, 2)
+        # Ensure result is positive and not too extreme
+        return np.sqrt(np.clip(garch_value, 0.00001, 0.25))
+    
+    def regime_switching_model(current_regime, transition_matrix):
+        """Determine next market regime based on transition probabilities"""
+        rand_value = np.random.random()
+        transition_probs = transition_matrix[current_regime]
+        cumulative_prob = 0
+        
+        for i, prob in enumerate(transition_probs):
+            cumulative_prob += prob
+            if rand_value < cumulative_prob:
+                return i
+        
+        return len(transition_probs) - 1
+    
+    def calculate_liquidity(base_volume, prev_volatility, order_imb, mkt_stress):
+        """Model market liquidity based on conditions with numerical stability"""
+        # Ensure all inputs are within safe ranges
+        safe_vol = min(2.0, max(0.0001, prev_volatility))
+        safe_imb = min(1.0, max(-1.0, order_imb))
+        safe_stress = min(1.0, max(0.0, mkt_stress))
+        
+        # Capped calculation to prevent extreme values
+        liquidity_factor = max(0.1, min(2.0, 1 - 0.3 * safe_vol - 0.2 * abs(safe_imb) - 0.1 * safe_stress))
+        return max(1.0, base_volume * liquidity_factor)
+    
+    def calculate_price_impact(volume, liquidity, volatility, order_imb):
+        """Enhanced price impact model with nonlinear effects and numerical stability"""
+        nonlinearity = 0.5  # Square root model
         impact_factor = 0.1
-        return impact_factor * np.sqrt(volume) * current_price
+        
+        # Safely handle inputs
+        safe_volume = max(0.1, volume)
+        safe_liquidity = max(1.0, liquidity)
+        safe_volatility = min(1.0, max(0.001, volatility))
+        safe_imb = min(1.0, max(-1.0, order_imb))
+        
+        # Safer adjustments with upper bounds
+        vol_adj = min(3.0, 1 + safe_volatility * 2)
+        imbalance_adj = min(1.5, 1 + abs(safe_imb) * 0.5)
+        
+        # Prevent division by zero and cap the result
+        impact_ratio = min(10.0, safe_volume / safe_liquidity)
+        
+        return min(0.1, impact_factor * np.power(impact_ratio, nonlinearity) * vol_adj * imbalance_adj)
     
-    def update_volatility(current_return):
-        nonlocal volatility
-        # More persistent volatility with noise traders
-        volatility = 0.8 * volatility + 0.2 * abs(current_return) * (1 + noise_trader_ratio * 2)
-        return max(0.005, min(0.15, volatility))  # Increased max volatility
+    def calculate_spread(volume, volatility, market_stress, order_imb):
+        """Dynamic spread calculation based on market conditions with bounds"""
+        base_spread = 0.02
+        
+        # Safe input values
+        safe_vol = np.clip(volatility, 0.001, 0.3)
+        safe_stress = np.clip(market_stress, 0, 1)
+        safe_imb = np.clip(abs(order_imb), 0, 1)
+        safe_volume = max(1.0, volume)
+        
+        # Bounded component calculations
+        vol_component = min(1.0, safe_vol * 4)
+        stress_component = safe_stress * 0.05
+        imbalance_component = safe_imb * 0.03
+        volume_component = min(0.5, 0.1 / np.sqrt(safe_volume))
+        
+        # Calculate with upper bound
+        spread = base_spread * (1 + vol_component + stress_component + imbalance_component) * volume_component
+        return min(0.1, max(0.001, spread))  # Keep spread in reasonable range
     
-    def calculate_spread(volume, volatility):
-        # Spread widens with volatility and narrows with volume
-        return base_spread * (1 + volatility * 2) * (1 / np.sqrt(volume + 1))
-
-    def calculate_noise_trader_sentiment(price_momentum, volatility):
-        # More extreme sentiment swings
-        sentiment_sensitivity = 3.0  # Increased from 2.0
-        volatility_aversion = 1.5
-        # Larger random component
-        random_sentiment = np.random.normal(0, 0.05 * noise_trader_ratio)  # Scales with noise ratio
-        return (price_momentum * sentiment_sensitivity) - (volatility * volatility_aversion) + random_sentiment
+    def update_momentum(prev_momentum, current_return, decay=0.85):
+        """Update price momentum with decay"""
+        return decay * prev_momentum + (1 - decay) * current_return
     
-    def update_momentum(current_return):
-        # Exponential moving average of returns
-        decay = 0.85
-        return decay * momentum + (1 - decay) * current_return
-
-    def calculate_strategic_advantage(current_price, phase, time_left):
-        # Manipulators' information advantage and strategic positioning
-        base_advantage = 0.02  # Base information advantage
-        phase_multiplier = 1.5 if phase == 'pump' else 2.0  # Higher advantage during dump
-        time_decay = np.exp(-0.1 * time_left)  # Advantage decreases as event approaches
-        return base_advantage * phase_multiplier * (1 - time_decay)
-    
-    def calculate_manipulator_strategy(phase, current_price, time_left, volatility):
-        # Strategic trading based on phase and market conditions
-        if phase == 'pump':
-            # Gradual accumulation and price support
-            base_volume = pump_strength * 100
-            stealth_factor = 1 - (time_left / pump_duration)  # Increase visibility over time
-            volume_adjustment = 1 + stealth_factor
-            
-            # Price support when needed
-            if volatility > 0.02:  # High volatility threshold
-                volume_adjustment *= 1.2  # Increase support
-                
-            return base_volume * volume_adjustment
+    def calculate_noise_trader_sentiment(price_momentum, volatility, market_stress, order_imb):
+        """Model complex noise trader sentiment with behavioral biases and numerical safety"""
+        # Clip inputs to prevent extreme values
+        safe_momentum = np.clip(price_momentum, -0.1, 0.1)
+        safe_volatility = np.clip(volatility, 0.001, 0.3)
+        safe_stress = np.clip(market_stress, 0, 1)
+        safe_imb = np.clip(order_imb, -1, 1)
+        
+        # Calculate components with bounded outputs
+        trend_following = 1.5 * safe_momentum  # Reduced coefficient for stability
+        fear_component = -1.0 * safe_volatility * (1 + safe_stress)
+        herding = 1.0 * safe_imb  # Reduced coefficient
+        recency_bias = np.random.normal(0, 0.05 * noise_trader_ratio)
+        
+        # Safer overreaction calculation
+        if abs(safe_momentum) < 0.001:
+            overreaction = 0
         else:
-            # Strategic distribution during dump
-            base_volume = dump_strength * 200
-            urgency_factor = (dump_duration - time_left) / dump_duration
-            volume_adjustment = 1 + urgency_factor
-            
-            # Adapt to market conditions
-            if volatility > 0.03:  # Market stress threshold
-                volume_adjustment *= 1.5  # Accelerate distribution
-                
-            return base_volume * volume_adjustment
-
+            overreaction = 0.3 * np.sign(safe_momentum) * min(0.2, np.power(abs(safe_momentum), 1.5))
+        
+        # Clip final sentiment to reasonable bounds
+        sentiment = trend_following + fear_component + herding + recency_bias + overreaction
+        return np.clip(sentiment, -0.5, 0.5)
+    
     for t in range(1, pump_duration + dump_duration + 1):
         current_price = prices[-1]
+        current_volatility = volatilities[-1]
+        prev_return = returns[-1] if returns else 0
+        
+        # Determine phase
         phase = 'pump' if t <= pump_duration else 'dump'
         time_left = pump_duration - t if phase == 'pump' else dump_duration - (t - pump_duration)
         
+        # Update regime based on transition probabilities
+        current_regime = regimes[-1]
+        new_regime = regime_switching_model(current_regime, regime_transition_matrices[phase])
+        regimes.append(new_regime)
+        
+        # Regime-specific parameters
+        regime_settings = [
+            {'vol_multiplier': 1.0, 'jump_intensity': 0.01, 'jump_mean': 0, 'jump_std': 0.01},  # Normal
+            {'vol_multiplier': 2.5, 'jump_intensity': 0.05, 'jump_mean': 0, 'jump_std': 0.02},  # High volatility
+            {'vol_multiplier': 4.0, 'jump_intensity': 0.15, 'jump_mean': -0.02, 'jump_std': 0.03}  # Crash
+        ][new_regime]
+        
+        # Update market stress based on regime and other factors, with safety
+        regime_stress = new_regime / 2.0  # Normalized regime stress
+        
+        # Safely calculate return-based stress
+        if current_volatility < 0.001 or np.isnan(current_volatility):
+            return_stress = 0.05  # Default value if volatility is too low
+        else:
+            # Limit the volatility-normalized return to prevent extreme values
+            normalized_return = min(5.0, abs(prev_return) / current_volatility)
+            return_stress = 0.1 * normalized_return
+            
+        # Smooth update with bounds
+        market_stress = 0.8 * market_stress + 0.2 * regime_stress + min(0.2, return_stress)
+        market_stress = min(1.0, max(0.0, market_stress))
+        
+        # Update momentum
+        momentum = update_momentum(momentum, prev_return)
+        
+        # Calculate noise trader sentiment with more complex dynamics
+        noise_sentiment = calculate_noise_trader_sentiment(momentum, current_volatility, market_stress, order_imbalance)
+        
+        # Calculate strategic manipulation effect with variability
         if phase == 'pump':
-            # Informed traders - more stable
-            informed_volume = np.random.gamma(2, 2, size=num_informed_traders)
-            informed_returns = np.random.normal(0.001, volatility * 0.3, 
-                                             size=num_informed_traders)
+            # More variable pump strategy
+            manipulation_strategy = pump_strength * (1 + 0.5 * np.sin(np.pi * t / pump_duration) + 0.3 * np.random.random())
+        else:
+            # Adaptive dump strategy
+            panic_factor = 0.3 * (1 - t/pump_duration + dump_duration) + 0.2 * market_stress
+            manipulation_strategy = -dump_strength * (1 + panic_factor + 0.2 * np.random.random())
+        
+        # Number of active traders varies based on market conditions
+        participation_rate_informed = 0.7 + 0.3 * np.random.random() - 0.2 * market_stress
+        participation_rate_noise = 0.5 + 0.5 * (0.5 + 0.5 * abs(momentum) + 0.3 * market_stress)
+        
+        active_informed_traders = int(num_informed_traders * max(0.1, min(1.0, participation_rate_informed)))
+        active_noise_traders = int(num_noise_traders * max(0.1, min(1.0, participation_rate_noise)))
+        
+        # Generate volumes with more realistic distributions
+        if phase == 'pump':
+            # Informed traders - more stable but varies with conditions
+            informed_shape = 2.0 - 0.5 * market_stress
+            informed_scale = 2.0 + 1.0 * (1 - market_stress)
+            informed_volume = np.random.gamma(informed_shape, informed_scale, size=active_informed_traders)
             
             # Noise traders - much more volatile
-            noise_sentiment = calculate_noise_trader_sentiment(momentum, volatility)
-            noise_volume = np.random.gamma(3, 2, size=num_noise_traders)
-            # Significantly increased volatility for noise traders
-            noise_returns = np.random.normal(noise_sentiment, volatility * 4.0, 
-                                          size=num_noise_traders)
-            
+            noise_shape = 3.0 + 1.0 * abs(noise_sentiment) 
+            noise_scale = 2.0 + 2.0 * abs(noise_sentiment)
+            noise_volume = np.random.gamma(noise_shape, noise_scale, size=active_noise_traders)
         else:
             # Informed traders - more cautious during dump
-            informed_volume = np.random.gamma(1.5, 1.5, size=num_informed_traders)
-            informed_returns = np.random.normal(-0.002, volatility * 0.4, 
-                                             size=num_informed_traders)
+            informed_shape = 1.5 - 0.5 * market_stress
+            informed_scale = 1.5 * (1.0 - 0.3 * market_stress)
+            informed_volume = np.random.gamma(informed_shape, informed_scale, size=active_informed_traders)
             
-            # Noise traders - panic response
-            noise_sentiment = calculate_noise_trader_sentiment(momentum, volatility) * 4  # More extreme
-            noise_volume = np.random.gamma(4, 2, size=num_noise_traders)
-            # Even more volatile during dump
-            noise_returns = np.random.normal(noise_sentiment, volatility * 5.0, 
-                                          size=num_noise_traders)
+            # Noise traders - panic response during dump
+            noise_shape = 4.0 + 2.0 * market_stress + 1.0 * abs(noise_sentiment)
+            noise_scale = 2.0 + 3.0 * market_stress + 2.0 * abs(noise_sentiment)
+            noise_volume = np.random.gamma(noise_shape, noise_scale, size=active_noise_traders)
         
-        # Manipulation effect
-        manipulation_volume = num_manipulators * (pump_strength if phase == 'pump' else dump_strength) * 100
-        manipulation_effect = (1 if phase == 'pump' else -1) * calculate_price_impact(manipulation_volume, current_price) / current_price
-
-        # Add high-frequency noise based on noise trader ratio
-        micro_noise = np.random.normal(0, volatility * noise_trader_ratio * 1.0)
+        # Manipulator volume with strategic variations
+        manipulation_volume = num_manipulators * (
+            (pump_strength if phase == 'pump' else dump_strength) * 
+            100 * (0.8 + 0.4 * np.random.random())
+        )
         
-        # Combine returns with stronger weighting by trader type
-        total_volume = (np.sum(informed_volume) + np.sum(noise_volume) + manipulation_volume)
+        # Total trading volume
+        total_volume = np.sum(informed_volume) + np.sum(noise_volume) + manipulation_volume
         volumes.append(total_volume)
         
-        # Weight returns more extremely based on trader composition
-        returns_t = np.concatenate((
-            informed_returns * (1 - noise_trader_ratio) ** 2,  # Square the weight to amplify difference
-            noise_returns * noise_trader_ratio ** 2,  # Square the weight to amplify difference
-            [manipulation_effect],
-            [micro_noise]
-        ))
-        return_t = np.mean(returns_t)
+        # Calculate order imbalance (between -1 and 1)
+        # Positive means more buy orders, negative means more sell orders
+        manip_imbalance = 0.8 if phase == 'pump' else -0.8
         
-        # Update market state
-        volatility = update_volatility(return_t)
-        momentum = update_momentum(return_t)
-        spread = calculate_spread(total_volume, volatility)
+        if phase == 'pump':
+            informed_imbalance = 0.1 - 0.4 * market_stress
+            # Informed traders might detect manipulation late in pump
+            if t > pump_duration * 0.7:
+                informed_imbalance -= 0.2 * (t - pump_duration * 0.7) / (pump_duration * 0.3)
+        else:
+            informed_imbalance = -0.3 - 0.3 * market_stress
+            
+        noise_imbalance = 0.7 * noise_sentiment
+        
+        order_imbalance = (
+            (manip_imbalance * manipulation_volume + 
+             informed_imbalance * np.sum(informed_volume) + 
+             noise_imbalance * np.sum(noise_volume))
+            / total_volume if total_volume > 0 else 0
+        )
+        
+        # Calculate liquidity
+        liquidity = calculate_liquidity(total_volume, current_volatility, order_imbalance, market_stress)
+        
+        # Generate returns for different trader types with fat tails
+        # Degrees of freedom for t-distribution (lower = fatter tails)
+        # With safety bounds to prevent numerical issues
+        informed_df = max(3.0, 5 - 2 * market_stress)  # Range: 3-5
+        noise_df = max(2.0, 3 - 1.5 * market_stress)   # Range: 2-3
+        
+        # Informed trader returns
+        if phase == 'pump':
+            informed_mean = 0.001 - 0.002 * market_stress
+            informed_scale = current_volatility * 0.3
+        else:
+            informed_mean = -0.002 - 0.003 * market_stress
+            informed_scale = current_volatility * 0.4
+            
+        informed_returns = t_dist_random(informed_mean, informed_scale, informed_df)
+        
+        # Noise trader returns
+        noise_mean = noise_sentiment * (0.01 if phase == 'pump' else 0.02)
+        noise_scale = current_volatility * regime_settings['vol_multiplier'] * 3
+        noise_returns = t_dist_random(noise_mean, noise_scale, noise_df)
+        
+        # Price impact from manipulation
+        manip_effect = manipulation_strategy * calculate_price_impact(
+            manipulation_volume,
+            liquidity,
+            current_volatility,
+            order_imbalance
+        )
+        manipulator_activity.append(manip_effect)
+        
+        # Add jump component
+        jump = poisson_jump(
+            regime_settings['jump_intensity'],
+            regime_settings['jump_mean'],
+            regime_settings['jump_std']
+        )
+        
+        # Combine returns with more complex weighting
+        informed_weight = max(0.2, min(0.8, (1 - noise_trader_ratio) * (1 + 0.5 * np.random.random())))
+        noise_weight = 1 - informed_weight
+        
+        # Final return calculation with all components and bounds
+        combined_return = (
+            informed_weight * informed_returns +
+            noise_weight * noise_returns +
+            manip_effect +
+            jump +
+            np.random.normal(0, 0.001 * (1 + market_stress))  # Microstructure noise
+        )
+        
+        # Clip returns to prevent extreme values
+        return_t = np.clip(combined_return, -0.15, 0.15)
+        returns.append(return_t)
+        
+        # Calculate bid-ask spread based on volatility, volume and market stress
+        spread = calculate_spread(total_volume, current_volatility, market_stress, order_imbalance)
         spreads.append(spread)
         
-        # Add more microstructure noise to price updates
-        price_t = current_price * (1 + return_t + spread/2 + np.random.normal(0, 0.001 * noise_trader_ratio))
+        # Update price with spread effect and liquidity premium, with safety
+        if total_volume < 0.1 or liquidity < 0.1:
+            liquidity_premium = 0.001 * market_stress  # Default if volumes/liquidity are too low
+        else:
+            liquidity_ratio = min(10.0, liquidity / total_volume)
+            liquidity_premium = min(0.01, 0.0005 * market_stress / liquidity_ratio)
+            
+        # Calculate new price with bounds to prevent overflow
+        price_factor = 1 + return_t + spread/2 * np.sign(order_imbalance) + liquidity_premium
+        price_factor = np.clip(price_factor, 0.8, 1.2)  # Limit single-period price change
+        price_t = current_price * price_factor
         prices.append(price_t)
-        returns.append(return_t)
-        manipulator_activity.append(manipulation_effect)
+        
+        # Update volatility using GARCH model with safety factors
+        base_vol = update_garch_volatility(
+            current_volatility, return_t, garch_omega, garch_alpha, garch_beta
+        )
+        
+        # Apply regime and stress multipliers with upper bound
+        stress_factor = min(1.5, 1 + 0.2 * market_stress)
+        regime_factor = min(3.0, regime_settings['vol_multiplier'])
+        
+        # Final volatility with upper bound to prevent extreme values
+        new_vol = min(0.25, base_vol * stress_factor * regime_factor)
+        
+        volatilities.append(new_vol)
+    
+    return prices, returns, manipulator_activity, volumes, spreads, volatilities, regimes
 
-    return prices, returns, manipulator_activity, volumes, spreads
-
-st.title("Pump and Dump Manipulation Simulation")
+st.title("Advanced Pump and Dump Manipulation Simulation")
 
 st.markdown("""
-## About This Simulation
-This application simulates market microstructure dynamics during a pump and dump manipulation scheme. 
+## About This Enhanced Simulation
+This application simulates realistic market microstructure dynamics during a pump and dump manipulation scheme with enhanced stochastic elements, including:
 
-### Trader Types
-1. **Strategic Informed Traders (Manipulators)**:
-   - Execute the pump and dump scheme
-   - Have superior information about their own trading intentions
-   - Trade strategically to maximize impact
+1. **Fat-tailed return distributions** - Student's t-distribution for more realistic extreme events
+2. **Volatility clustering** - GARCH(1,1) model for time-varying volatility
+3. **Regime-switching** - Markov chain model for market state transitions
+4. **Jump diffusion process** - Poisson jumps for sudden price movements
+5. **Liquidity dynamics** - State-dependent liquidity conditions
+6. **Order flow imbalance** - Strategic and behavioral imbalances
+7. **Market stress feedback loops** - Complex interactions between variables
 
-2. **Regular Informed Traders**:
-   - Trade based on fundamental information
-   - Gradually detect manipulation
-   - More sophisticated than noise traders
-   
-3. **Noise Traders**:
-   - React to price movements and market sentiment
-   - Display behavioral biases (herding, momentum following)
-   - More susceptible to manipulation
-
-The balance between these trader types significantly affects market efficiency and manipulation success.
+The simulation produces more realistic price paths with:
+- **Natural market noise** - Stochastic processes beyond simple random walks
+- **Heterogeneous traders** - Different behavior models across trader types
+- **Strategic adaptation** - Manipulators respond to market conditions
+- **Emergent properties** - Complex system interactions create realistic patterns
 """)
 
 st.markdown("---")
@@ -282,35 +500,44 @@ dump_strength = st.slider(
 
 st.markdown("""
 ### Market Microstructure Effects
-The simulation incorporates several key market microstructure elements:
-- **Price Impact**: Larger trades move prices more (square root impact model)
-- **Volatility**: Updates dynamically based on trading activity (GARCH-like process)
-- **Bid-Ask Spread**: Widens with volatility and narrows with volume
-- **Information Diffusion**: Regular traders gradually detect manipulation
+The enhanced simulation incorporates several key market microstructure elements:
+- **Fat-Tailed Distributions**: More realistic extreme price movements
+- **Volatility Clustering**: Similar volatility tends to cluster together in time
+- **Regime Switching**: Market can transition between normal, volatile, and crash states
+- **Liquidity Dynamics**: Liquidity varies with market conditions
+- **Order Flow Imbalance**: Strategic positioning of trades
+- **Market Stress Feedback**: Interactions between volatility, sentiment and liquidity
 """)
 
 if st.button("Simulate"):
-    with st.spinner("Running simulation..."):
+    with st.spinner("Running advanced simulation..."):
         # Main simulation - show details
-        prices, returns, manipulator_activity, volumes, spreads = simulate_pump_and_dump(
+        prices, returns, manipulator_activity, volumes, spreads, volatilities, regimes = simulate_pump_and_dump(
             num_traders, num_manipulators, pump_duration, dump_duration, 
             pump_strength, dump_strength, noise_trader_ratio, show_details=True)
 
-        # Create subplots with 5 rows and 1 column
-        fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.05,
-                            subplot_titles=("Price", "Return", "Manipulator Activity", "Trading Volume", "Bid-Ask Spread"))
+        # Create subplots with 7 rows and 1 column
+        fig = make_subplots(rows=7, cols=1, shared_xaxes=True, vertical_spacing=0.05,
+                            subplot_titles=("Price", "Return", "Volatility", "Manipulator Activity", 
+                                           "Trading Volume", "Bid-Ask Spread", "Market Regime"))
 
         # Add traces for each subplot
         fig.add_trace(go.Scatter(x=list(range(len(prices))), y=prices, mode='lines', name='Price'), row=1, col=1)
         fig.add_trace(go.Scatter(x=list(range(1, len(returns) + 1)), y=returns, mode='lines', name='Return'), row=2, col=1)
-        fig.add_trace(go.Scatter(x=list(range(1, len(manipulator_activity) + 1)), y=manipulator_activity, mode='lines', name='Manipulator Activity'), row=3, col=1)
-        fig.add_trace(go.Scatter(x=list(range(1, len(volumes) + 1)), y=volumes, mode='lines', name='Volume'), row=4, col=1)
-        fig.add_trace(go.Scatter(x=list(range(1, len(spreads) + 1)), y=spreads, mode='lines', name='Spread'), row=5, col=1)
+        fig.add_trace(go.Scatter(x=list(range(len(volatilities))), y=volatilities, mode='lines', name='Volatility'), row=3, col=1)
+        fig.add_trace(go.Scatter(x=list(range(1, len(manipulator_activity) + 1)), y=manipulator_activity, mode='lines', name='Manipulator Activity'), row=4, col=1)
+        fig.add_trace(go.Scatter(x=list(range(1, len(volumes) + 1)), y=volumes, mode='lines', name='Volume'), row=5, col=1)
+        fig.add_trace(go.Scatter(x=list(range(1, len(spreads) + 1)), y=spreads, mode='lines', name='Spread'), row=6, col=1)
+        
+        # Regime plot
+        regime_labels = ["Normal", "High Volatility", "Crisis"]
+        fig.add_trace(go.Scatter(x=list(range(len(regimes))), y=regimes, mode='lines', 
+                                name='Market Regime', line=dict(shape='hv')), row=7, col=1)
 
         # Update layout
         fig.update_layout(
-            height=1200,  # Increase overall height
-            title="Market Microstructure During Pump and Dump",
+            height=1400,  # Increase overall height
+            title="Enhanced Market Microstructure During Pump and Dump",
             xaxis=dict(title="Time"),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
@@ -318,45 +545,46 @@ if st.button("Simulate"):
         # Update y-axis titles
         fig.update_yaxes(title_text="Price", row=1, col=1)
         fig.update_yaxes(title_text="Return", row=2, col=1)
-        fig.update_yaxes(title_text="Manipulator Activity", row=3, col=1)
-        fig.update_yaxes(title_text="Volume", row=4, col=1)
-        fig.update_yaxes(title_text="Spread", row=5, col=1)
+        fig.update_yaxes(title_text="Volatility", row=3, col=1)
+        fig.update_yaxes(title_text="Manipulator Activity", row=4, col=1)
+        fig.update_yaxes(title_text="Volume", row=5, col=1)
+        fig.update_yaxes(title_text="Spread", row=6, col=1)
+        fig.update_yaxes(title_text="Regime", row=7, col=1, tickvals=[0, 1, 2], ticktext=regime_labels)
 
         st.plotly_chart(fig)
 
         st.markdown("""
-        ## Interpretation Guide
+        ## Enhanced Interpretation Guide
         
-        ### Price Pattern
-        - The pump phase shows gradually increasing prices as manipulators accumulate positions
-        - The dump phase exhibits a sharp price decline as positions are distributed
+        ### Price Pattern Analysis
+        - **Realistic Noise**: Price paths now show natural market noise rather than smooth trends
+        - **Regime-Dependent Behavior**: Notice how behavior changes across market regimes
+        - **Discontinuities**: Jump processes create occasional price gaps
+        - **Emergent Patterns**: Complex price behaviors emerge from simple interaction rules
         
-        ### Returns
-        - More volatile during manipulation periods
-        - Asymmetric patterns between pump and dump phases
+        ### Volatility Dynamics
+        - **Clustering Effect**: Periods of high volatility tend to cluster together
+        - **Regime Transitions**: Volatility spikes often coincide with regime shifts
+        - **GARCH Effects**: Volatility has a persistent component that creates realistic patterns
         
-        ### Manipulator Activity
-        - Initially subtle during accumulation
-        - More aggressive during distribution
+        ### Trading Volume Interpretation
+        - **Heterogeneous Response**: Different trader types respond differently to conditions
+        - **Participation Rate Variations**: Trader activity varies with market conditions
+        - **Volume-Volatility Relationship**: Note the relationship between these variables
         
-        ### Trading Volume
-        - Typically increases during both phases
-        - Highest during the dump phase due to panic selling
-        
-        ### Bid-Ask Spread
-        - Widens with increased volatility
-        - Reflects market maker uncertainty
+        ### Manipulator Effectiveness Analysis
+        - **Variable Impact**: Manipulation effectiveness varies with market conditions
+        - **Strategic Adaptation**: Manipulators adjust strategies based on market response
+        - **Detection Threshold**: High activity periods may trigger detection by informed traders
         """)
 
-        st.subheader("Comparative Illustration")
-        pump_strengths = [0.001, 0.005, 0.01, 0.05, 0.1]
-        dump_strengths = [0.001, 0.005, 0.01, 0.05, 0.1]
-
+        # Run multiple simulations for comparison
+        st.subheader("Comparative Simulation Analysis")
+        
         fig_comparative = go.Figure()
-
-        for pump_strength, dump_strength in zip(pump_strengths, dump_strengths):
-            # Comparative simulations - don't show details
-            prices, _, _, _, _ = simulate_pump_and_dump(
+        
+        for i in range(5):
+            sim_prices, _, _, _, _, _, _ = simulate_pump_and_dump(
                 num_traders, 
                 num_manipulators, 
                 pump_duration, 
@@ -364,77 +592,80 @@ if st.button("Simulate"):
                 pump_strength, 
                 dump_strength,
                 noise_trader_ratio,
-                show_details=False  # Don't show details for comparative runs
+                show_details=False
             )
             fig_comparative.add_trace(go.Scatter(
-                x=list(range(len(prices))), 
-                y=prices, 
+                x=list(range(len(sim_prices))), 
+                y=sim_prices, 
                 mode='lines', 
-                name=f"Pump: {pump_strength}, Dump: {dump_strength}"
+                name=f"Simulation Run {i+1}"
             ))
 
         fig_comparative.update_layout(
-            title="Impact of Pump and Dump Intensity on Market Function",
+            title="Multiple Simulation Runs with Identical Parameters - Note the Variance",
             xaxis=dict(title="Time"),
             yaxis=dict(title="Price"),
             legend=dict(x=1.0, y=1.0, orientation="v"),
         )
 
         st.plotly_chart(fig_comparative)
-
-        st.write("The comparative illustration demonstrates the impact of different pump and dump intensities on market function. By varying the pump and dump strengths, we can observe how the severity of the manipulation affects the price trajectory and the overall market dynamics.")
-
-        st.write("As the pump and dump strengths increase, the price distortion becomes more pronounced, with steeper price increases during the pump phase and sharper declines during the dump phase. This highlights the potential for more severe market disruptions when manipulators employ more aggressive tactics.")
-
-        st.write("The comparative illustration also reveals the sensitivity of the market to manipulation intensity. Even small changes in pump and dump strengths can lead to noticeable differences in price patterns, underscoring the importance of detecting and mitigating manipulative activities early on.")
-
-        st.write("By providing this comparative view, the app helps users develop a deeper understanding of how the intensity of pump and dump manipulation can impact market function and stability. It emphasises the need for robust surveillance and regulatory measures to prevent and counteract such manipulative practices.")
-
+        
         st.markdown("""
-        ## Market Composition Effects on Results
+        ## Understanding the Enhanced Model
         
-        ### Price Formation
-        - **High Noise Trader Ratio**: Prices more volatile, stronger momentum effects
-        - **High Informed Ratio**: More efficient price discovery, resistance to manipulation
+        The comparative visualization demonstrates an important improvement: **path diversity**. 
+        Even with identical parameters, each simulation produces a unique price path - just like real markets.
         
-        ### Volume Patterns
-        - Noise traders tend to trade more frequently
-        - Informed traders more selective in timing
-        - Volume spikes often indicate noise trader herding
+        ### Key Enhancements
         
-        ### Spread Behavior
-        - Wider spreads when noise traders dominate
-        - Tighter spreads with more informed trading
-        - Spread patterns signal market maker confidence
+        1. **Fat-Tailed Returns**: Student's t-distribution generates more realistic extreme events
+        2. **Regime-Switching**: Markov model creates distinct market phases
+        3. **GARCH Volatility**: Time-varying volatility with realistic persistence
+        4. **Jump Process**: Occasional discontinuous price movements
+        5. **Strategic Adaptation**: Manipulators respond to evolving conditions
+        6. **Behavioral Elements**: Realistic trader psychology and biases
+        7. **Liquidity Dynamics**: Market depth varies with conditions
+        8. **Multi-Agent Interaction**: Complex emergent behaviors from simple rules
         
-        ### Manipulation Effectiveness
-        - More successful with higher noise trader ratio
-        - Harder to execute with more informed traders
-        - Trade-off between profit potential and detection risk
+        These enhancements create much more realistic market behavior during manipulation events.
         """)
-
-        # Add comparison of different noise trader ratios
-        st.subheader("Impact of Noise Trader Ratio")
-        noise_ratios = [0.2, 0.5, 0.8]
-        fig_noise = go.Figure()
-
-        for ratio in noise_ratios:
-            prices_n, _, _, _, _ = simulate_pump_and_dump(
-                num_traders, num_manipulators, pump_duration, dump_duration,
-                pump_strength, dump_strength, ratio, show_details=False
-            )
-            fig_noise.add_trace(go.Scatter(
-                x=list(range(len(prices_n))),
-                y=prices_n,
-                mode='lines',
-                name=f"Noise Ratio: {ratio:.1f}"
-            ))
-
-        fig_noise.update_layout(
-            title="Price Paths with Different Noise Trader Ratios",
-            xaxis=dict(title="Time"),
-            yaxis=dict(title="Price"),
-            legend=dict(x=1.0, y=1.0, orientation="v"),
+        
+        # Add market regime analysis
+        st.subheader("Market Regime Analysis")
+        
+        # Count occurrences of each regime
+        regime_counts = [regimes.count(0), regimes.count(1), regimes.count(2)]
+        regime_colors = ['rgba(99, 110, 250, 0.7)', 'rgba(239, 85, 59, 0.7)', 'rgba(0, 0, 0, 0.7)']
+        
+        fig_regimes = go.Figure()
+        fig_regimes.add_trace(go.Bar(
+            x=["Normal", "High Volatility", "Crisis"],
+            y=regime_counts,
+            marker_color=regime_colors
+        ))
+        
+        fig_regimes.update_layout(
+            title="Distribution of Market Regimes During Simulation",
+            xaxis=dict(title="Regime Type"),
+            yaxis=dict(title="Time Periods"),
         )
-
-        st.plotly_chart(fig_noise)
+        
+        st.plotly_chart(fig_regimes)
+        
+        st.markdown("""
+        ## Application to Real Market Analysis
+        
+        The regime distribution provides insight into the stability of the market during the manipulation period. 
+        Real pump and dump schemes often coincide with increased market instability and regime transitions.
+        
+        ### Implications for Detection
+        
+        1. **Regime Transitions**: Unusual transitions between market states can signal manipulation
+        2. **Volatility Patterns**: GARCH-type volatility patterns differ during manipulation
+        3. **Volume-Price Relationships**: Abnormal relationships can indicate manipulative activity
+        4. **Order Flow Analysis**: Strategic order placement reveals manipulator footprints
+        5. **Trader Composition Effects**: Market composition amplifies manipulation impact
+        
+        These advanced simulation elements provide a more robust framework for understanding 
+        how market manipulation manifests in real financial markets with natural noise and complexity.
+        """)
